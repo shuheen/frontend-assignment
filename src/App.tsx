@@ -1,24 +1,39 @@
 import React from 'react';
-import logo from './logo.svg';
+import WeekdayDateRangePicker from './components/DateRangePicker/DateRangePicker';
 import './App.css';
-
 function App() {
+  // Function to calculate date range
+  const calculateDateRange = (days: number): [Date, Date] => {
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() - 1); // Yesterday
+    const startDate = new Date(endDate);
+    startDate.setDate(endDate.getDate() - days); // End date minus days + 1
+    return [startDate, endDate];
+  };
+
+  // Dynamic predefined ranges
+  const predefinedRanges = [
+    { label: 'Last 7 Days', range: calculateDateRange(7) },
+    { label: 'Last 30 Days', range: calculateDateRange(30) },
+  ];
+
+  const handleDateChange = (
+    selectedRange: [string, string],
+    weekendDates: string[],
+  ) => {
+    console.log('Selected Range:', selectedRange);
+    console.log('Weekend Dates:', weekendDates);
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div className="app-container">
+        <h1>Weekday Date Range Picker</h1>
+        <WeekdayDateRangePicker
+          predefinedRanges={predefinedRanges}
+          onChange={handleDateChange}
+        />
+      </div>
     </div>
   );
 }
