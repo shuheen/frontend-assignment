@@ -7,7 +7,7 @@ function App() {
     const endDate = new Date();
     endDate.setDate(endDate.getDate() - 1); // Yesterday
     const startDate = new Date(endDate);
-    startDate.setDate(endDate.getDate() - days); // End date minus days + 1
+    startDate.setDate(endDate.getDate() - days); // End date minus days
     return [startDate, endDate];
   };
 
@@ -28,7 +28,7 @@ function App() {
   return (
     <div className="App">
       <div className="app-container">
-        <h1>Weekday Date Range Picker</h1>
+        <h1>Date Range Picker</h1>
         <WeekdayDateRangePicker
           predefinedRanges={predefinedRanges}
           onChange={handleDateChange}
