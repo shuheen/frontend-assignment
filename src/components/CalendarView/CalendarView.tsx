@@ -2,106 +2,80 @@ import React, { useEffect, useState } from 'react';
 import { DateRangePickerProps } from '../../types/DateRangePicker.type';
 import StyledCalendarView from './CalendarView.style';
 
-const CalendarView = ({ predefinedRanges, onChange }: DateRangePickerProps) => {
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
+interface CalendarViewProps extends DateRangePickerProps {
+  selectedRange: [Date | null, Date | null];
+}
+
+const CalendarView = ({
+  predefinedRanges,
+  onChange,
+  selectedRange,
+}: CalendarViewProps) => {
+  const [startDate, setStartDate] = useState<Date | null>(selectedRange[0]);
+  const [endDate, setEndDate] = useState<Date | null>(selectedRange[1]);
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
 
-  // Helper function to check if a date is a weekend
   const isWeekend = (date: Date) => {
-    const day = date.getUTCDay();
-    return day === 0 || day === 6; // Sunday = 0, Saturday = 6
+    const day = date.getDay();
+    return day === 0 || day === 6;
   };
 
-  // Normalize date to remove the time component and ensure UTC
-  const normalizeDate = (date: Date) => {
-    const normalized = new Date(
-      Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
-    );
-    return normalized;
-  };
-
-  // Handle date selection
   const handleDateSelect = (date: Date) => {
-    const normalizedDate = normalizeDate(date);
-    if (isWeekend(normalizedDate)) return;
+    if (isWeekend(date)) return;
 
     if (!startDate || (startDate && endDate)) {
-      setStartDate(normalizedDate);
+      setStartDate(date);
       setEndDate(null);
     } else {
-      if (normalizedDate > startDate) {
-        setEndDate(normalizedDate);
+      if (date > startDate) {
+        setEndDate(date);
       } else {
         setEndDate(startDate);
-        setStartDate(normalizedDate);
+        setStartDate(date);
       }
     }
   };
 
-  // Calculate weekends correctly in the range
-  const getWeekendDatesInRange = (start: Date, end: Date) => {
-    const weekends: string[] = [];
-    let currentDate = normalizeDate(new Date(start));
-
-    while (currentDate <= end) {
-      if (isWeekend(currentDate)) {
-        weekends.push(currentDate.toISOString().split('T')[0]);
-      }
-      currentDate.setUTCDate(currentDate.getUTCDate() + 1);
-      currentDate = normalizeDate(currentDate); // Re-normalize after date increment
-    }
-
-    return weekends;
-  };
-
-  // Effect to handle changes in startDate and endDate
   useEffect(() => {
     if (startDate && endDate) {
       const weekends = getWeekendDatesInRange(startDate, endDate);
-      console.log('Selected Dates:', startDate, endDate);
-      console.log('Weekend Dates:', weekends);
       onChange(
         [
-          startDate.toISOString().split('T')[0],
-          endDate.toISOString().split('T')[0],
+          startDate.toISOString().split('T')[0], // Convert to string
+          endDate.toISOString().split('T')[0], // Convert to string
         ],
         weekends,
       );
     }
-  }, [startDate, endDate]);
+  }, [startDate, endDate, onChange]);
 
-  // Handle predefined range selection
-  const handlePredefinedRangeSelect = (range: [Date, Date]) => {
-    setStartDate(normalizeDate(range[0]));
-    setEndDate(normalizeDate(range[1]));
-  };
-
-  // Generate days for the current month
-  const generateDaysInMonth = (year: number, month: number) => {
-    const days = [];
-    const date = new Date(Date.UTC(year, month, 1));
-    while (date.getUTCMonth() === month) {
-      days.push(new Date(date));
-      date.setUTCDate(date.getUTCDate() + 1);
+  const getWeekendDatesInRange = (start: Date, end: Date) => {
+    const weekends = [];
+    const currentDate = new Date(start);
+    while (currentDate <= end) {
+      if (isWeekend(currentDate)) {
+        weekends.push(currentDate.toISOString().split('T')[0]);
+      }
+      currentDate.setDate(currentDate.getDate() + 1);
     }
-    return days;
+    return weekends;
   };
 
-  // Handle change in month and year
   const handleMonthChange = (offset: number) => {
-    const newDate = new Date(Date.UTC(currentYear, currentMonth + offset, 1));
-    setCurrentMonth(newDate.getUTCMonth());
-    setCurrentYear(newDate.getUTCFullYear());
+    const newDate = new Date(currentYear, currentMonth + offset, 1);
+    setCurrentMonth(newDate.getMonth());
+    setCurrentYear(newDate.getFullYear());
   };
 
   const handleYearChange = (offset: number) => {
     setCurrentYear((prevYear) => prevYear + offset);
   };
 
-  // Generate days for the current month
-  const days = generateDaysInMonth(currentYear, currentMonth);
+  const days = Array.from(
+    { length: 31 },
+    (_, i) => new Date(currentYear, currentMonth, i + 1),
+  );
 
   return (
     <StyledCalendarView className="calendar-container">
@@ -114,13 +88,9 @@ const CalendarView = ({ predefinedRanges, onChange }: DateRangePickerProps) => {
         <div className="calendar-header">
           <button onClick={() => handleMonthChange(-1)}>{'<'}</button>
           <span className="selected-month">
-            {new Date(Date.UTC(currentYear, currentMonth)).toLocaleString(
-              'default',
-              {
-                month: 'long',
-                timeZone: 'UTC',
-              },
-            )}
+            {new Date(currentYear, currentMonth).toLocaleString('default', {
+              month: 'long',
+            })}
           </span>
           <button onClick={() => handleMonthChange(1)}>{'>'}</button>
         </div>
@@ -130,26 +100,37 @@ const CalendarView = ({ predefinedRanges, onChange }: DateRangePickerProps) => {
           <button
             key={index}
             onClick={() => handleDateSelect(day)}
-            className={`calendar-day ${isWeekend(day) ? 'weekend' : ''} ${startDate && endDate && day >= startDate && day <= endDate ? 'selected' : ''}`}
+            className={`calendar-day ${isWeekend(day) ? 'weekend' : ''} ${
+              startDate && endDate && day >= startDate && day <= endDate
+                ? 'selected'
+                : ''
+            }`}
             disabled={isWeekend(day)}
           >
-            {day.getUTCDate()}
+            {day.getDate()}
           </button>
         ))}
       </div>
       {predefinedRanges && (
         <div className="predefined-ranges">
-          <div className="predefined-ranges-button-wrapper">
-            {predefinedRanges.map((range, index) => (
-              <button
-                key={index}
-                onClick={() => handlePredefinedRangeSelect(range.range)}
-              >
-                {range.label}
-              </button>
-            ))}
-          </div>
-          <button className="ok-button">OK</button>
+          {predefinedRanges.map((range, index) => (
+            <button
+              key={index}
+              onClick={() => {
+                setStartDate(range.range[0]);
+                setEndDate(range.range[1]);
+                onChange(
+                  [
+                    range.range[0].toISOString().split('T')[0], // Convert to string
+                    range.range[1].toISOString().split('T')[0], // Convert to string
+                  ],
+                  getWeekendDatesInRange(range.range[0], range.range[1]),
+                );
+              }}
+            >
+              {range.label}
+            </button>
+          ))}
         </div>
       )}
     </StyledCalendarView>
