@@ -3,6 +3,7 @@ import StyledDateRangePicker from './DateRangePicker.style';
 import { createPortal } from 'react-dom';
 import { DateRangePickerProps } from '../../types/components/date-range-picker';
 import CalendarView from '../CalendarView/CalendarView';
+import { formatDate } from '../../utils/date';
 
 const DateRangePicker = ({
   predefinedRanges,
@@ -76,11 +77,11 @@ const DateRangePicker = ({
         className="date-range-input"
         placeholder="Start Date - End Date"
         value={
-          selectedRange[0] && selectedRange[1]
-            ? `${selectedRange[0]?.toLocaleDateString()} - ${selectedRange[1]?.toLocaleDateString()}`
+          selectedRange && selectedRange[0] && selectedRange[1]
+            ? `${formatDate(selectedRange[0])} - ${formatDate(selectedRange[1])}`
             : ''
         }
-        onFocus={handleDatePickerToggle}
+        onClick={handleDatePickerToggle}
       />
       {isOpen &&
         createPortal(

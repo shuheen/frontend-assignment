@@ -3,6 +3,13 @@ import { CalendarViewProps } from '../../types/components/date-range-picker';
 import StyledCalendarView from './CalendarView.style';
 import Button from '../Button/Button';
 import CalendarDay from './CalendarDay/CalendarDay';
+import MonthYearSelector from '../MonthYearSelector/MonthYearSelector';
+import {
+  formatDate,
+  getDaysInMonth,
+  getWeekendDatesInRange,
+  isWeekend,
+} from '../../utils/date';
 
 const CalendarView = ({
   predefinedRanges,
@@ -15,11 +22,6 @@ const CalendarView = ({
   const [endDate, setEndDate] = useState<Date | null>(selectedRange[1]);
   const [currentMonth, setCurrentMonth] = useState(initialMonth);
   const [currentYear, setCurrentYear] = useState(initialYear);
-
-  const isWeekend = (date: Date) => {
-    const day = date.getDay();
-    return day === 0 || day === 6;
-  };
 
   const handleDateSelect = (date: Date) => {
     if (isWeekend(date)) return;
@@ -71,25 +73,6 @@ const CalendarView = ({
     }
   }, [selectedRange]);
 
-  const getWeekendDatesInRange = (start: Date, end: Date) => {
-    const weekends = [];
-    const currentDate = new Date(start);
-    while (currentDate <= end) {
-      if (isWeekend(currentDate)) {
-        weekends.push(formatDate(currentDate));
-      }
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
-    return weekends;
-  };
-
-  const formatDate = (date: Date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
-
   const handleMonthChange = (offset: number) => {
     setCurrentMonth((prevMonth) => {
       const newMonth = prevMonth + offset;
@@ -109,47 +92,28 @@ const CalendarView = ({
     setCurrentYear((prevYear) => prevYear + offset);
   };
 
-  const getDaysInMonth = (year: number, month: number) => {
-    const start = new Date(year, month, 1);
-    const end = new Date(year, month + 1, 0);
-    const days = [];
-
-    const startDay = start.getDay();
-    for (let i = 0; i < startDay; i++) {
-      days.push(null);
-    }
-
-    for (let day = 1; day <= end.getDate(); day++) {
-      days.push(new Date(year, month, day));
-    }
-
-    const endDay = end.getDay();
-    for (let i = endDay; i < 6; i++) {
-      days.push(null);
-    }
-
-    return days;
-  };
-
   const days = getDaysInMonth(currentYear, currentMonth);
 
   return (
     <StyledCalendarView className="calendar-container">
       <div className="header-wrapper">
-        <div className="calendar-header">
-          <button onClick={() => handleYearChange(-1)}>{'<'}</button>
-          <span className="selected-year">{currentYear}</span>
-          <button onClick={() => handleYearChange(1)}>{'>'}</button>
-        </div>
-        <div className="calendar-header">
-          <button onClick={() => handleMonthChange(-1)}>{'<'}</button>
-          <span className="selected-month">
-            {new Date(currentYear, currentMonth).toLocaleString('default', {
+        <MonthYearSelector
+          handleNext={() => handleYearChange(1)}
+          handlePrevious={() => handleYearChange(-1)}
+          mainText={currentYear}
+          classNames="calendar-header"
+        />
+        <MonthYearSelector
+          handleNext={() => handleMonthChange(1)}
+          handlePrevious={() => handleMonthChange(-1)}
+          classNames="calendar-header"
+          mainText={new Date(currentYear, currentMonth).toLocaleString(
+            'default',
+            {
               month: 'long',
-            })}
-          </span>
-          <button onClick={() => handleMonthChange(1)}>{'>'}</button>
-        </div>
+            },
+          )}
+        />
       </div>
       <div className="calendar-grid">
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (

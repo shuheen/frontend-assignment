@@ -1,21 +1,23 @@
 import React from 'react';
 import StyledMonthYearSelector from './MonthYearSelector.style';
-import Button from '../Button/Button';
 import { MonthYearSelectorProps } from '../../types/components/month-year-selector';
-
+import IconButton from '../IconButton/IconButton';
+import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 const MonthYearSelector = ({
   handlePrevious,
   handleNext,
   classNames,
-  nextText,
-  previousText,
   mainText,
 }: MonthYearSelectorProps) => {
   return (
     <StyledMonthYearSelector className={classNames}>
-      <Button onClick={handlePrevious} label={previousText}></Button>
+      <IconButton size="small" onClick={handlePrevious} icon={FaChevronLeft} />
       <span className="selected-year">{mainText}</span>
-      <Button onClick={handleNext} label={nextText}></Button>
+      <IconButton
+        size="small"
+        onClick={handleNext}
+        icon={FaChevronRight}
+      ></IconButton>
     </StyledMonthYearSelector>
   );
 };
