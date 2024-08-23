@@ -4,17 +4,21 @@ import StyledCalendarView from './CalendarView.style';
 
 interface CalendarViewProps extends DateRangePickerProps {
   selectedRange: [Date | null, Date | null];
+  initialMonth: number;
+  initialYear: number;
 }
 
 const CalendarView = ({
   predefinedRanges,
   onChange,
   selectedRange,
+  initialMonth,
+  initialYear,
 }: CalendarViewProps) => {
   const [startDate, setStartDate] = useState<Date | null>(selectedRange[0]);
   const [endDate, setEndDate] = useState<Date | null>(selectedRange[1]);
-  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
-  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [currentMonth, setCurrentMonth] = useState(initialMonth);
+  const [currentYear, setCurrentYear] = useState(initialYear);
 
   const isWeekend = (date: Date) => {
     const day = date.getDay();
@@ -42,24 +46,31 @@ const CalendarView = ({
       const weekends = getWeekendDatesInRange(startDate, endDate);
       onChange(
         [
-          startDate.toISOString().split('T')[0], // Convert to string
-          endDate.toISOString().split('T')[0], // Convert to string
+          formatDate(startDate), // Format date without affecting timezone
+          formatDate(endDate), // Format date without affecting timezone
         ],
         weekends,
       );
     }
-  }, [startDate, endDate, onChange]);
+  }, [startDate, endDate]);
 
   const getWeekendDatesInRange = (start: Date, end: Date) => {
     const weekends = [];
     const currentDate = new Date(start);
     while (currentDate <= end) {
       if (isWeekend(currentDate)) {
-        weekends.push(currentDate.toISOString().split('T')[0]);
+        weekends.push(formatDate(currentDate));
       }
       currentDate.setDate(currentDate.getDate() + 1);
     }
     return weekends;
+  };
+
+  const formatDate = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
 
   const handleMonthChange = (offset: number) => {
@@ -101,7 +112,10 @@ const CalendarView = ({
             key={index}
             onClick={() => handleDateSelect(day)}
             className={`calendar-day ${isWeekend(day) ? 'weekend' : ''} ${
-              startDate && endDate && day >= startDate && day <= endDate
+              startDate &&
+              endDate &&
+              formatDate(day) >= formatDate(startDate) &&
+              day <= endDate
                 ? 'selected'
                 : ''
             }`}
@@ -120,10 +134,7 @@ const CalendarView = ({
                 setStartDate(range.range[0]);
                 setEndDate(range.range[1]);
                 onChange(
-                  [
-                    range.range[0].toISOString().split('T')[0], // Convert to string
-                    range.range[1].toISOString().split('T')[0], // Convert to string
-                  ],
+                  [formatDate(range.range[0]), formatDate(range.range[1])],
                   getWeekendDatesInRange(range.range[0], range.range[1]),
                 );
               }}

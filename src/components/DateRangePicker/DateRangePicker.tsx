@@ -33,7 +33,6 @@ const DateRangePicker = ({
   };
 
   const handleDateChange = (range: [string, string], weekends: string[]) => {
-    // Convert the string range to Date objects for internal use if needed
     setSelectedRange([new Date(range[0]), new Date(range[1])]);
     onChange(range, weekends);
   };
@@ -60,6 +59,14 @@ const DateRangePicker = ({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isOpen]);
+
+  // Determine initial month and year based on selected range
+  const initialMonth = selectedRange[0]
+    ? selectedRange[0].getMonth()
+    : new Date().getMonth();
+  const initialYear = selectedRange[0]
+    ? selectedRange[0].getFullYear()
+    : new Date().getFullYear();
 
   return (
     <StyledDateRangePicker ref={pickerRef}>
@@ -89,7 +96,9 @@ const DateRangePicker = ({
             <CalendarView
               predefinedRanges={predefinedRanges}
               onChange={handleDateChange}
-              selectedRange={selectedRange} // Pass the selected range to the CalendarView
+              selectedRange={selectedRange}
+              initialMonth={initialMonth} // Pass initial month
+              initialYear={initialYear} // Pass initial year
             />
           </div>,
           document.body,
