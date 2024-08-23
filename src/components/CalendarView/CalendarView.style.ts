@@ -31,46 +31,13 @@ const StyledCalendarView = styled.div`
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 4px;
-  }
-
-  .calendar-day {
-    padding: 8px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    background-color: #f0f0f0;
-  }
-
-  .calendar-day:hover {
-    background-color: #e0e0e0;
-  }
-
-  .calendar-day.selected {
-    background-color: #90caf9;
-  }
-
-  .calendar-day.weekend {
-    background-color: #ffe0e0;
-    cursor: not-allowed;
+    text-align: center;
   }
 
   .predefined-ranges {
     margin-top: 16px;
     display: flex;
-    justify-content: space-between;
-  }
-
-  .predefined-ranges button {
-    margin: 4px;
-    padding: 4px 8px;
-    border: none;
-    border-radius: 4px;
-    background-color: #f0f0f0;
-    cursor: pointer;
-  }
-
-  .predefined-ranges button:hover {
-    background-color: #e0e0e0;
+    gap: 1rem;
   }
 `;
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import StyledCalendarDay from './CalendarDay.style';
-import { CalendarDayProps } from '../../types/components/calendar-day';
+import { CalendarDayProps } from '../../../types/components/calendar-day';
 
 const CalendarDay = ({
   label,
