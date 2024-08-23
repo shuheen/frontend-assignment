@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import WeekdayDateRangePicker from './components/DateRangePicker/DateRangePicker';
 import './App.css';
 function App() {
+  const [weekend, setWeekend] = useState<string[] | null>(null);
   // Function to calculate date range
   const calculateDateRange = (days: number): [Date, Date] => {
     const endDate = new Date();
@@ -21,6 +22,7 @@ function App() {
     selectedRange: [string, string],
     weekendDates: string[],
   ) => {
+    setWeekend(weekendDates);
     console.log('Selected Range:', selectedRange);
     console.log('Weekend Dates:', weekendDates);
   };
@@ -33,6 +35,16 @@ function App() {
           predefinedRanges={predefinedRanges}
           onChange={handleDateChange}
         />
+        {weekend && (
+          <div className="weekend-list">
+            <h5>Weekend Days:</h5>
+            <ul>
+              {weekend.map((item) => {
+                return <li key={item.replace(/-/g, '')}>{item}</li>;
+              })}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   );
