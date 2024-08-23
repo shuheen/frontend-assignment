@@ -1,12 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { DateRangePickerProps } from '../../types/DateRangePicker.type';
+import { CalendarViewProps } from '../../types/components/date-range-picker';
 import StyledCalendarView from './CalendarView.style';
-
-interface CalendarViewProps extends DateRangePickerProps {
-  selectedRange: [Date | null, Date | null];
-  initialMonth: number;
-  initialYear: number;
-}
+import Button from '../Button/Button';
+import CalendarDay from '../CalendarDay/CalendarDay';
 
 const CalendarView = ({
   predefinedRanges,
@@ -108,10 +104,10 @@ const CalendarView = ({
       </div>
       <div className="calendar-grid">
         {days.map((day, index) => (
-          <button
+          <CalendarDay
             key={index}
             onClick={() => handleDateSelect(day)}
-            className={`calendar-day ${isWeekend(day) ? 'weekend' : ''} ${
+            classNames={`calendar-day ${isWeekend(day) ? 'weekend' : ''} ${
               startDate &&
               endDate &&
               formatDate(day) >= formatDate(startDate) &&
@@ -120,15 +116,14 @@ const CalendarView = ({
                 : ''
             }`}
             disabled={isWeekend(day)}
-          >
-            {day.getDate()}
-          </button>
+            label={day.getDate().toString()}
+          />
         ))}
       </div>
       {predefinedRanges && (
         <div className="predefined-ranges">
           {predefinedRanges.map((range, index) => (
-            <button
+            <Button
               key={index}
               onClick={() => {
                 setStartDate(range.range[0]);
@@ -138,9 +133,8 @@ const CalendarView = ({
                   getWeekendDatesInRange(range.range[0], range.range[1]),
                 );
               }}
-            >
-              {range.label}
-            </button>
+              label={range.label}
+            />
           ))}
         </div>
       )}

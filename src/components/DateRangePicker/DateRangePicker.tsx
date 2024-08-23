@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import StyledDateRangePicker from './DateRangePicker.style';
 import { createPortal } from 'react-dom';
-import { DateRangePickerProps } from '../../types/DateRangePicker.type';
+import { DateRangePickerProps } from '../../types/components/date-range-picker';
 import CalendarView from '../CalendarView/CalendarView';
 
 const DateRangePicker = ({
